@@ -47,27 +47,7 @@ declare os_VENDOR os_RELEASE os_UPDATE os_PACKAGE os_CODENAME
 # GetOSVersion
 function GetOSVersion {
 #k Figure out which vendor we are
-if [[ -x "`which sw_vers 2>/dev/null`" ]]; then
-# OS/X
-	os_VENDOR=`sw_vers -productName`
-	os_RELEASE=`sw_vers -productVersion`
-	os_UPDATE=${os_RELEASE##*.}
-	os_RELEASE=${os_RELEASE%.*}
-	os_PACKAGE=""
-	if [[ "$os_RELEASE" =~ "10.7" ]]; then
-		os_CODENAME="lion"
-	elif [[ "$os_RELEASE" =~ "10.6" ]]; then
-		os_CODENAME="snow leopard"
-	elif [[ "$os_RELEASE" =~ "10.5" ]]; then
-		os_CODENAME="leopard"
-	elif [[ "$os_RELEASE" =~ "10.4" ]]; then
-		os_CODENAME="tiger"
-	elif [[ "$os_RELEASE" =~ "10.3" ]]; then
-		os_CODENAME="panther"
-	else
-		os_CODENAME=""
-	fi
-elif [[ -x $(which lsb_release 2>/dev/null) ]]; then
+if [[ -x $(which lsb_release 2>/dev/null) ]]; then
 	os_VENDOR=$(lsb_release -i -s)
 	os_RELEASE=$(lsb_release -r -s)
 	os_UPDATE=""
@@ -197,7 +177,11 @@ elif is_ubuntu ; then
 		echo "$INTERFACE was configured."
 		pvsetip -d
 	fi
+<<<<<<< HEAD
+	echo "Connect Linux machine to DataProtect VM Encryption Manager"
+=======
 	echo "Connet Linux machine to DataProtect VM Encryption Manager"
+>>>>>>> 5fa823903a048a77caac78de276c484a69798455
 	cd /opt/protectv/bootagent
 	bash pvreg $TOKEN $GATEWAY $CA
 	if [ $? -ne 0 ]; then
