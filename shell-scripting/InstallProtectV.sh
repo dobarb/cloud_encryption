@@ -177,11 +177,7 @@ elif is_ubuntu ; then
 		echo "$INTERFACE was configured."
 		pvsetip -d
 	fi
-<<<<<<< HEAD
 	echo "Connect Linux machine to DataProtect VM Encryption Manager"
-=======
-	echo "Connet Linux machine to DataProtect VM Encryption Manager"
->>>>>>> 5fa823903a048a77caac78de276c484a69798455
 	cd /opt/protectv/bootagent
 	bash pvreg $TOKEN $GATEWAY $CA
 	if [ $? -ne 0 ]; then
