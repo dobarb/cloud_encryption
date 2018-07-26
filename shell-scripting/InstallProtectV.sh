@@ -11,24 +11,33 @@ IP="$1"
 GATEWAY="$2"
 NETMASK="$3"
 INTERFACE="$4"
+TOKEN="$5"
+CA="$6"
 
 if [ -z "$IP" ]; then
 	echo "Warning: IP variable is not set. Will use the default value."
 	IP="172.16.1.200"
 fi
 if [ -z "$GATEWAY" ]; then
-         echo "Warning: IP variable is not set. Will use the default value."
+         echo "Warning: GATEWAY variable is not set. Will use the default value."
          GATEWAY="172.16.0.1"
 fi
 if [ -z "$NETMASK" ]; then
-         echo "Warning: IP variable is not set. Will use the default value."
+         echo "Warning: NETMASK variable is not set. Will use the default value."
          NETMASK="255.255.254.0"
 fi
 if [ -z "$INTERFACE" ]; then
-         echo "Warning: IP variable is not set. Will use the default value."
+         echo "Warning: INTERFACE variable is not set. Will use the default value."
          INTERFACE="eth0"
 fi
-
+if [ -z "$TOKEN" ]; then
+         echo "Error: TOKEN variable is not set. Aborting..."
+         exit 1
+fi
+if [ -z "$CA" ]; then
+         echo "Error: Certificate path is not set. Aborting..."
+         exit 1
+fi
 
 declare os_VENDOR os_RELEASE os_UPDATE os_PACKAGE os_CODENAME
 
@@ -165,10 +174,40 @@ elif is_ubuntu ; then
 	apt-get install gdebi-core python-crypto busybox -y
 	if [ $? -ne 0 ]; then
 		echo "Unable to install the dependencies. Aborting..."
-		exit 1	
+		exit 1
+	else
+		echo "Dependencies were installed."
 	fi
-	
-	echo "I'm UBUNTU."
+	apt-get update
+	echo "Installing ProtectV on the machine"
+	PV=$(ls | grep pvlinux*16*)
+	gdebi $PV -n
+	if [ $? -ne 0 ]; then
+		echo "Error: Something gone wrong. Unable to install ProtectV. Exiting..."
+		exit 1
+	else
+		echo "ProtectV was installed."
+	fi
+	echo "Configuring $INTERFACE static ip"
+	pvsetip -i $IP -g $GATEWAY -n NETMASK -x $INTERFACE -f
+	if [ $? -ne 0 ]; then
+		echo  "Error: Unable to set static ip on $INTERFACE. Exiting..."
+		exit 1
+	else
+		echo "$INTERFACE was configured."
+		pvsetip -d
+	fi
+	echo "Connet Linux machine to DataProtect VM Encryption Manager"
+	cd /opt/protectv/bootagent
+	bash pvreg $TOKEN $GATEWAY $CA
+	if [ $? -ne 0 ]; then
+		echo  "Error: Unable to register the client. Exiting..."
+		exit 1
+	else
+		echo "The client was registred to DataProtect VM Encryption Manager. The VM will be rebooted in 1 minute"
+		sleep 60
+		sudo reboot	
+	fi
 elif is_suse ; then
 #Install stuff on SUSE
 echo "I'm SUSE."
