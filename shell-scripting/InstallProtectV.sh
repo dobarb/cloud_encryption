@@ -158,7 +158,7 @@ elif is_ubuntu ; then
 	else
 		echo "Dependencies were installed."
 	fi
-	apt-get update
+	apt-get update -y
 	echo "Installing ProtectV on the machine"
 	PV=$(ls | grep pvlinux*16*)
 	gdebi $PV -n
