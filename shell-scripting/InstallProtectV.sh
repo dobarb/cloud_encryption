@@ -188,6 +188,16 @@ elif is_ubuntu ; then
 		sleep 60
 		sudo reboot	
 	fi
+	#Uninstalling the ProtectV Clinet just uncomment the folloing lines
+	#sudo apt-get purge pvlinux
+	#if [ $? -ne 0 ]; then
+	#	echo  "Error: Unable to uninstall the client. Exiting..."
+	#	exit 1
+	#else
+	#	echo "The client was uninstalled to DataProtect VM Encryption Manager. The VM will be rebooted in 1 minute"
+	#	sleep 60
+	#	sudo reboot	
+	#fi
 elif is_suse ; then
 #Install stuff on SUSE
 echo "I'm SUSE."
