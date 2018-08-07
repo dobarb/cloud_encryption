@@ -16,17 +16,25 @@
 #
 # NOTE: This script install and config JUST one DataProtect VM Encryption Manager
 # For more details please send an email to $Mail adddresses. 
+# Usage: ./InstallPVM <STATIC_IP> <GATEWAY> <NETMASK> <INTEFACE> <DNS1> <DNS1> <KSTOKEN> <KSCA>
 ##########################################################################
 
-./InstallPVM.sh first_pram 
 STATIC_IP="$1"
 GATEWAY="$2"
 NETMASK="$3"
 INTERFACE="$4"
 DNS1="$5"
 DNS2="$6"
-TOKEN="$7"
-CA="$8"
+
+KSCLIENTCN="KSCLIENTCN"
+KSCLIENTCSR="KSCLIENTCSR"
+PASSPHRASE="PASSPHRASE"
+KSIP="193.251.82.208"
+KSPORT="9000"
+KSUSER="admin"
+KSCACERT="/home/pvadmin/ca.crt"
+KSPASS="JCsomPW13k"
+KSCLIENTCERT="/home/pvadmin/certificate.crt"
 
 #Check for manadatory parameters
 if [ -z "$STATIC_IP" ]; then
@@ -34,24 +42,24 @@ if [ -z "$STATIC_IP" ]; then
 	IP="172.16.1.195"
 fi
 if [ -z "$GATEWAY" ]; then
-         echo "Warning: GATEWAY variable is not set. Will use the default value."
-         GATEWAY="172.16.0.1"
+    echo "Warning: GATEWAY variable is not set. Will use the default value."
+    GATEWAY="172.16.0.1"
 fi
 if [ -z "$NETMASK" ]; then
-         echo "Warning: NETMASK variable is not set. Will use the default value."
-         NETMASK="255.255.254.0"
+    echo "Warning: NETMASK variable is not set. Will use the default value."
+    NETMASK="255.255.254.0"
 fi
 if [ -z "$INTERFACE" ]; then
-         echo "Warning: INTERFACE variable is not set. Will use the default value."
-         INTERFACE="eth0"
+    echo "Warning: INTERFACE variable is not set. Will use the default value."
+    INTERFACE="eth0"
 fi
 if [ -z "$DNS1" ]; then
-         echo "Warning: DNS variable is not set. Will use the default value."
-         DNS1="172.16.0.5"
+    echo "Warning: DNS variable is not set. Will use the default value."
+    DNS1="172.16.0.5"
 fi
 if [ -z "$DNS2" ]; then
-         echo "Warning: DNS variable is not set. Will use the default value."
-         DNS2="172.16.0.1"
+    echo "Warning: DNS variable is not set. Will use the default value."
+    DNS2="172.16.0.1"
 fi
 
 function CONFIG_ENCRYPTION_MANAGER {
@@ -67,6 +75,31 @@ function CONFIG_ENCRYPTION_MANAGER {
 	fi
 	echo "Network details:"
 	sudo pvmctl networkpvm show 
+	if [ $? -ne 0 ]; then
+		echo "ERROR: Network inteface does not start."
+		exit 1
+	else 
+		echo "Network interface was restarted."
+	fi
+	#Create DataProtect VM Encryption Manager certificate which will be signed on DataProtect KMS Key Manager
+	#Make sure that you MUST CHANGE
+	sudo pvmctl createcsr --ksclientcsr=$KSCLIENTCSR --ksclientcn=$KSCLIENTCN --passphrase="$PASSPHRASE" 
+	if [ $? -ne 0 ]; then
+		echo "ERROR: Unable to create DataProtect VM Encryption Manager certificate. Exiting ...."
+		exit 1
+	else 
+		echo "DataProtect VM Encryption Manager certificate was created."
+	fi
+	#After all the certificate was signed by KeySecure and copied in the DataProtect VM Encryption Manager
+	#the following commnad connets it to DataProtect KMS Key Manager
+	sudo pvmctl configks --ksip=$KSIP --ksport=$KSPORT --ksuser=$KSUSER --kscacert=$KSCACERT --kspass="$KSPASS" --ksclientcert=$KSCLIENTCERT
+	if [ $? -ne 0 ]; then
+		echo "ERROR: Unable to connect DataProtect VM Encryption Manager on DataProtect KMS Key Manager. Exiting ...."
+		exit 1
+	else 
+		echo "DataProtect VM Encryption Manager successfully connected on  DataProtect KMS Key Manager."
+		sudo pvmctl startpvm --prikeypass="$PASSPHRASE" 
+	fi 
 }
 
 
