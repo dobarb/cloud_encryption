@@ -29,12 +29,12 @@ DNS2="$6"
 KSCLIENTCN="KSCLIENTCN"
 KSCLIENTCSR="KSCLIENTCSR"
 PASSPHRASE="PASSPHRASE"
-KSIP="193.251.82.208"
-KSPORT="9000"
-KSUSER="admin"
-KSCACERT="/home/pvadmin/ca.crt"
-KSPASS="JCsomPW13k"
-KSCLIENTCERT="/home/pvadmin/certificate.crt"
+KSIP=""
+KSPORT=""
+KSUSER=""
+KSCACERT="/home/.crt"
+KSPASS=""
+KSCLIENTCERT="/home/.crt"
 
 #Check for manadatory parameters
 if [ -z "$STATIC_IP" ]; then
